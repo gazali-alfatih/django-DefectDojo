@@ -277,7 +277,7 @@ def view_finding(request, fid):
         })
 
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: 'u.is_staff or u in test.engagement.product.authorized_users.all()')
 def close_finding(request, fid):
     finding = get_object_or_404(Finding, id=fid)
     # in order to close a finding, we need to capture why it was closed
