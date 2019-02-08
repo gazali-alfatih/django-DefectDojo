@@ -28,7 +28,7 @@ from dojo.models import Finding, Product, Engagement, Test, \
     JIRA_PKey, JIRA_Issue, Cred_Mapping, Dojo_User, System_Settings
 from dojo.tools.factory import import_parser_factory
 from dojo.utils import get_page_items, add_breadcrumb, handle_uploaded_threat, \
-    FileIterWrapper, get_cal_event, message, get_system_setting, create_notification, Product_Tab
+    FileIterWrapper, get_cal_event, message, get_system_setting, create_notification, Product_Tab, add_issue
 from dojo.tasks import update_epic_task, add_epic_task, close_epic_task
 
 logger = logging.getLogger(__name__)
@@ -578,7 +578,7 @@ def import_scan_results(request, eid=None, pid=None):
                         item.tags = item.unsaved_tags
 
                     finding_count += 1
-
+                    add_issue(item, True) #added to jira
                 messages.add_message(
                     request,
                     messages.SUCCESS,
@@ -718,7 +718,7 @@ def complete_checklist(request, eid):
     })
 
 
-@user_passes_test(lambda u: u.is_staff)
+@user_passes_test(lambda u: 'u.is_staf or u in eng.product.authorized_users.all()')
 def upload_risk(request, eid):
     eng = Engagement.objects.get(id=eid)
     # exclude the findings already accepted
